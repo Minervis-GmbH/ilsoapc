@@ -63,4 +63,4 @@ if __name__ == '__main__':
         users = build_user_from_file(filename)
         soap.import_users(users)
 
-build_user_from_file(filename)
+
