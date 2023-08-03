@@ -60,5 +60,4 @@ if __name__ == '__main__':
 
     if test_run:
         users = build_user_from_file(filename)
-        print(users)
         soap.import_users(users)
