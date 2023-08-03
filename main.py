@@ -2,48 +2,47 @@ from ilsoapc import soap_client as soap_client
 import pandas as pd
 import xml.etree.ElementTree as ET
 
-
 def build_user_from_file(filename, writer=ET):
-
-    #1. we use pandas to read the excel file
     obj = pd.read_excel(filename)
 
-    #2. we initialize some empty list to store the user dictionaries
     users = []
-
-    #3. we iterate through each row of the DataFrame object obtained from
-    # reading the file in step 1, and then create user dictionaries
 
     for index, row in obj.iterrows():
         user = {
             "Login": row["Login"],
-            "First Name": row["Firstname"],
-            "Last Name": row["Lastname"],
-            "global_role": row["Rolle#global"],
+            "firstname": row["Firstname"],
+            "lastname": row["Lastname"],
             "email": row["Email"],
-            "password": row["Password"],
-            "institiution": row["Institution"]
-            
+            "institution": row["Institution"],
+            "active": 1,
+            "auth_mode": "default",
+            "skin": "default",
+            "style": "delos"
         }
-
-        # we append the user dictionary to the list of users dictionaries
         users.append(user)
-        
+
+    root = ET.Element('Users')
     
 
-    # Start building an xml object for the data
-    root = ET.Element('Users')
-
-
-    #we create an XML reperesentation of the user data using ElmentTree
     for user in users:
         user_element = ET.SubElement(root, 'User', Language='de', Action='Insert')
-        for key, value in user.items():
-            ET.SubElement(user_element, key).text = str(value)
+        
+        ET.SubElement(user_element, 'Login').text = user['Login']
+        role_element = ET.SubElement(user_element, 'Role', Id='il_0_role_5', Type='Global')
+        role_element.text = "Guest"
     
-    #return the converted XML element into a string
-    return ET.tostring(root, encoding='UTF-8', xml_declaration=True)
-    
+        
+        ET.SubElement(user_element, 'Firstname').text = user['firstname']
+        ET.SubElement(user_element, 'Lastname').text = user['lastname']
+        ET.SubElement(user_element, 'Gender').text = 'm'  # Set a default value
+        
+        ET.SubElement(user_element, 'Email').text = user['email']
+        ET.SubElement(user_element, 'Active').text = "true" 
+        ET.SubElement(user_element, 'AuthMode', type='default')
+        
+        look_element = ET.SubElement(user_element, 'Look', Skin='default', Style='delos')
+
+    return ET.tostring(root, encoding='UTF-8', xml_declaration=True).decode('utf-8')
 
 if __name__ == '__main__':
     installation_url = "http://127.0.0.1:80"
@@ -58,9 +57,8 @@ if __name__ == '__main__':
 
     soap = soap_client.SoapClient(soap_url, client)
     soap.request_token(username, password)
-    if not test_run:
-        #users = '<?xml version="1.0" encoding="utf-8"?><!DOCTYPE Users PUBLIC "-//ILIAS//DTD UserImport//EN" "https://maclocal.ilias.minervis:9070/xml/ilias_user_5_1.dtd"><Users><UDFDefinitions></UDFDefinitions><User Language="de" Action="Insert"><Login>soap.user-005</Login><Role Id="il_0_role_5" Type="Global">Guest</Role><Firstname>arerere</Firstname><Lastname>fgfgfgfgfg</Lastname><Gender>m</Gender><Email>some_email@email.com</Email><Active>true</Active><AuthMode type="default"/><Look Skin="default" Style="delos"/></User><User Language="de" Action="Insert"><Login>soap.user-006</Login><Role Id="il_0_role_5" Type="Global">Guest</Role><Firstname>some user</Firstname><Lastname>someother name</Lastname><Gender>m</Gender><Email>some_email@email.com</Email><Active>true</Active><AuthMode type="default"/><Look Skin="default" Style="delos"/></User></Users>'
-        users = build_user_from_file(filename)
-        soap.import_users(users)
 
-build_user_from_file(filename)
+    if test_run:
+        users = build_user_from_file(filename)
+        print(users)
+        soap.import_users(users)
