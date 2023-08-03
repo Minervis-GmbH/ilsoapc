@@ -34,7 +34,7 @@ def build_user_from_file(filename, writer=ET):
         
         ET.SubElement(user_element, 'Firstname').text = user['firstname']
         ET.SubElement(user_element, 'Lastname').text = user['lastname']
-        ET.SubElement(user_element, 'Gender').text = 'm'  # Set a default value
+        ET.SubElement(user_element, 'Gender').text = 'm'  #we set a default value
         
         ET.SubElement(user_element, 'Email').text = user['email']
         ET.SubElement(user_element, 'Active').text = "true" 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     password = "homer123"
     soap_url = f"{installation_url}/webservice/soap/server.php"
 
-    filename = 'users.xlsx'  # Location of the provided Excel file
+    filename = 'users.xlsx'  # Location of the provided Excel file-it's in the same directory-
 
     test_run = True
 
